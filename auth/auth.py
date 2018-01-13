@@ -1,3 +1,5 @@
+import re
+
 from flask import session,request,redirect
 from app import db,models
 import settings
@@ -13,7 +15,7 @@ class Auth(object):
         app.auth_manager=self
 
         app.before_request(self.check_login)
-
+        app.before_request(self.check_permission)
         app.context_processor(self.auth_context_processor)
 
 
@@ -31,6 +33,34 @@ class Auth(object):
         if session.get('user'):
             return None
         return redirect('/login')
+
+
+    def check_permission(self):
+        current_url=request.path
+
+        permission_url_dict = session.get(settings.PERMISSIONS_URL_DICT_KEY)
+        if not permission_url_dict:
+            return redirect('/login')
+
+        flag=False
+        for group_id,code_url in permission_url_dict.items():
+
+            for url in code_url.get('urls'):
+                regex='^{}$'.format(url)
+
+                if re.match(regex,current_url):
+                    request.permission_code_list=code_url.get('codes')
+                    flag=True
+                    break
+
+
+            if flag:
+                break
+        if not flag:
+            return '无权访问'
+
+
+
 
 
     def permission(self,user):
@@ -77,12 +107,12 @@ class Auth(object):
 
 
             if group_id in result:
-                result[group_id]['code'].append(permission_code)
-                result[group_id]['url'].append(permission_url)
+                result[group_id]['codes'].append(permission_code)
+                result[group_id]['urls'].append(permission_url)
             else:
                 result[group_id]={
-                    'code':[permission_code,],
-                    'url':[permission_url,]
+                    'codes':[permission_code,],
+                    'urls':[permission_url,]
                 }
 
         session[settings.PERMISSIONS_URL_DICT_KEY]=result
