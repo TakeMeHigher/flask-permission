@@ -10,6 +10,7 @@ from .views import operate
 def create_app():
     app=Flask(__name__)
     app.debug=True
+    #session秘钥
     app.secret_key='ctz12345'
 
 
