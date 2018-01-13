@@ -38,6 +38,9 @@ class Auth(object):
     def check_permission(self):
         current_url=request.path
 
+        if request.path=='/login':
+            return None
+
         permission_url_dict = session.get(settings.PERMISSIONS_URL_DICT_KEY)
         if not permission_url_dict:
             return redirect('/login')

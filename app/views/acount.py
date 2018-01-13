@@ -18,4 +18,4 @@ def login():
             current_app.auth_manager.login(name)
             current_app.auth_manager.permission(user)
 
-            return str(permission_list)
+            return redirect('/index')

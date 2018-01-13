@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    {% if pagepermission.has_add() %}
+        <a href="">
+            <button>添加</button>
+        </a>
+    {% endif %}
+
+    <table>
+        <thead>
+        <tr>
+            <th>用户名</th>
+            {% if pagepermission.has_del() or pagepermission.has_edit() %}
+             <th>操作</th>
+            {% endif %}
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>
+                    {% if pagepermission.has_edit() %}
+                        <a href="">编辑</a>
+                    {% endif %}
+                    {% if pagepermission.has_del() %}
+                        <a href="">删除</a>
+                    {% endif %}
+
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
