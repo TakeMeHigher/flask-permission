@@ -11,3 +11,5 @@ class BaseConfig(object):
 #权限相关
 PERMISSIONS_URL_DICT_KEY="permission_dict_url"
 
+PERMISSIONS_MENU_KEY='PERMISSIONS_MENU_KEY'
+RESULT='result'

@@ -1,7 +1,7 @@
 from  flask import Flask, Blueprint, request, render_template, redirect, current_app
 from app import db, models
 
-count = Blueprint('count', __name__)
+count = Blueprint('count', __name__,static_folder='static')
 
 
 @count.route('/login', methods=['POST', 'GET'])
@@ -17,5 +17,5 @@ def login():
         if user:
             current_app.auth_manager.login(name)
             current_app.auth_manager.permission(user)
-
+            print(user)
             return redirect('/index')

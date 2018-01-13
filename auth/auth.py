@@ -1,6 +1,6 @@
 import re
 
-from flask import session,request,redirect
+from flask import session,request,redirect,render_template,current_app
 from app import db,models
 import settings
 
@@ -15,7 +15,8 @@ class Auth(object):
         app.auth_manager=self
 
         app.before_request(self.check_login)
-        app.before_request(self.check_permission)
+        #app.before_request(self.check_permission)
+        # app.before_request(self.view_menu)
         app.context_processor(self.auth_context_processor)
 
 
@@ -31,7 +32,10 @@ class Auth(object):
             return None
 
         if session.get('user'):
+            self.check_permission()
+            self.view_menu()
             return None
+
         return redirect('/login')
 
 
@@ -39,6 +43,8 @@ class Auth(object):
         current_url=request.path
 
         if request.path=='/login':
+            return None
+        if request.path=='/index':
             return None
 
         permission_url_dict = session.get(settings.PERMISSIONS_URL_DICT_KEY)
@@ -63,8 +69,54 @@ class Auth(object):
             return '无权访问'
 
 
+    def view_menu(self):
+        menu_list = session.get(settings.PERMISSIONS_MENU_KEY)
+        #print(menu_list)
+        currenturl = request.path
+        #print(menu_list)
+        menu_dict = {}
+        for item in menu_list:
+            if not item["menu_gp_id"]:
+                menu_dict[item["id"]] = item
+        for item in menu_list:
+            regex = "^{0}$".format(item["url"])
+            if re.match(regex, currenturl):
+                menu_gp_id = item["menu_gp_id"]
+                if not menu_gp_id:
+                    menu_dict[item["id"]]["active"] = True
+                else:
+                    menu_dict[item["menu_gp_id"]]["active"] = True
+        print(111111111)
+        '''
+        menu_dict={
+        1: {'id': 1, 'title': '用户列表', 'url': '/userinfo/', 'menu_gp_id': None, 'menu_id': 1, 'menu_title': '菜单管理', 'active': True},
+        5: {'id': 5, 'title': '订单列表', 'url': '/order/', 'menu_gp_id': None, 'menu_id': 2, 'menu_title': '菜单2'}}
+        '''
+        #print(menu_dict, "11111111111111111111111111111111111111111111")
+        result = {}
+        for item in menu_dict.values():
+            menu_id = item["menu_id"]
+            menu_title = item["menu_title"]
+            active = item.get("active")
+            url = item["url"]
+            title = item["title"]
+            #print(active)
+            if menu_id in result:
+                result[menu_id]["children"].append({"title": title, "url": url, "active": active})
+                if active:
+                    result[menu_id]["active"] = True
+            else:
+                result[menu_id] = {
+                    "menu_id": menu_id,
+                    "menu_title": menu_title,
+                    "active": active,
+                    "children": [
+                        {"title": title, "url": url, "active": active},
+                    ]
 
-
+                }
+        session[settings.RESULT]=result
+        return result
 
     def permission(self,user):
         roles = db.session.query(models.User2Role.role_id).filter(models.User2Role.user_id == user.id).all()
@@ -119,6 +171,25 @@ class Auth(object):
                 }
 
         session[settings.PERMISSIONS_URL_DICT_KEY]=result
+
+
+        #菜单相关
+
+
+
+        menu_list = []
+        for item in permission_list:
+            tpl = {
+                "id": item["permission_id"],
+                "title": item["permission_name"],
+                "menu_title": item["permission_menu_title"],
+                "url": item["permission_url"],
+                "menu_id": item["permission_menu_id"],
+                "menu_gp_id": item["permission_menu_gp_id"],
+            }
+            menu_list.append(tpl)
+
+        session[settings.PERMISSIONS_MENU_KEY] = menu_list
 
 
     def login(self,data):

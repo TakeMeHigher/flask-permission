@@ -1,8 +1,9 @@
-from flask import Flask,render_template,redirect,Blueprint,request
+from flask import Flask,render_template,redirect,Blueprint,request,session
 
 
 from  app import  db,models
-order=Blueprint('order',__name__)
+import settings
+order=Blueprint('order',__name__,static_folder='static')
 
 class BasePagePermission(object):
     def __init__(self,code_list):
@@ -21,4 +22,5 @@ class BasePagePermission(object):
 def orderlist():
     orders=db.session.query(models.Order).all()
     pagepermission = BasePagePermission(request.permission_code_list)
-    return render_template('orderlist.html',orders=orders,pagepermission=pagepermission)
+    result = session.get(settings.RESULT)
+    return render_template('orderlist.html',orders=orders,pagepermission=pagepermission,result=result)

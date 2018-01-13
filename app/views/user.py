@@ -1,7 +1,8 @@
-from flask import  Flask,session,render_template,redirect,Blueprint,request
+from flask import  Flask,session,render_template,redirect,Blueprint,request,session
 from app import db,models
 
-user=Blueprint('user',__name__)
+import settings
+user=Blueprint('user',__name__,static_folder='static')
 
 
 
@@ -25,6 +26,7 @@ class BasePagePermission(object):
 def userlist():
     users=db.session.query(models.User).all()
     pagepermission = BasePagePermission(request.permission_code_list)
-    return render_template('userlist.html',users=users,pagepermission=pagepermission)
+    result = session.get(settings.RESULT)
+    return render_template('userlist.html',users=users,pagepermission=pagepermission,result=result)
 
 
