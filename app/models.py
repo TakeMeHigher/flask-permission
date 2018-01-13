@@ -11,6 +11,9 @@ class Menu(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(32), nullable=True, unique=True)
 
+    def __str__(self):
+        return self.title
+
 
 class Group(db.Model):
     '''
@@ -22,6 +25,10 @@ class Group(db.Model):
     menu_id = Column(Integer, ForeignKey("menu.id"))
 
     menu = relationship('Menu', backref='groups')
+
+
+    def __str__(self):
+        return self.title
 
 
 class Permission(db.Model):
@@ -45,6 +52,11 @@ class Permission(db.Model):
     }
 
 
+    def __str__(self):
+        return self.title
+
+
+
 class Role(db.Model):
     '''
     角色表
@@ -54,6 +66,11 @@ class Role(db.Model):
     title = Column(String(32), nullable=True)
 
     pers = relationship("Permission", secondary='permission2role', backref='roles')
+
+
+
+    def __str__(self):
+        return self.title
 
 
 class Permission2Role(db.Model):
@@ -66,6 +83,9 @@ class Permission2Role(db.Model):
     permission_id = Column(Integer, ForeignKey('permission.id'))
 
 
+
+
+
 class User(db.Model):
     '''
     用户表
@@ -76,6 +96,11 @@ class User(db.Model):
     pwd = Column(String(32), nullable=True)
 
     roles = relationship('Role',secondary='user2role',backref='users')
+
+
+
+    def __str__(self):
+        return self.username
 
 
 class User2Role(db.Model):
