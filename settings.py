@@ -6,3 +6,10 @@ class BaseConfig(object):
 
     # 追踪对象的修改并且发送信号
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+#权限相关
+PERMISSIONS_URL_DICT_KEY="permission_dict_url"
+
+PERMISSIONS_MENU_KEY='PERMISSIONS_MENU_KEY'
+RESULT='result'

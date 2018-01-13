@@ -9,7 +9,10 @@ class Menu(db.Model):
     '''
     __tablename__ = 'menu'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(32), nullable=True, unique=True)
+    title = Column(String(32), unique=True)
+
+    def __str__(self):
+        return self.title
 
 
 class Group(db.Model):
@@ -18,10 +21,14 @@ class Group(db.Model):
     '''
     __tablename__ = 'group'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(32), nullable=True, unique=True)
+    title = Column(String(32),  unique=True)
     menu_id = Column(Integer, ForeignKey("menu.id"))
 
     menu = relationship('Menu', backref='groups')
+
+
+    def __str__(self):
+        return self.title
 
 
 class Permission(db.Model):
@@ -30,9 +37,9 @@ class Permission(db.Model):
     '''
     __tablename__ = 'permission'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(32), nullable=True)
-    url = Column(String(64), nullable=True)
-    menu_gp_id = Column(Integer, ForeignKey('permission.id'))
+    title = Column(String(32) )
+    url = Column(String(64))
+    menu_gp_id = Column(Integer, ForeignKey('permission.id'),nullable=True)
     code = Column(String(32), default='list')
     group_id = Column(Integer, ForeignKey('group.id'), default=1)
 
@@ -45,15 +52,25 @@ class Permission(db.Model):
     }
 
 
+    def __str__(self):
+        return self.title
+
+
+
 class Role(db.Model):
     '''
     角色表
     '''
     __tablename__ = 'role'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(32), nullable=True)
+    title = Column(String(32))
 
     pers = relationship("Permission", secondary='permission2role', backref='roles')
+
+
+
+    def __str__(self):
+        return self.title
 
 
 class Permission2Role(db.Model):
@@ -66,16 +83,24 @@ class Permission2Role(db.Model):
     permission_id = Column(Integer, ForeignKey('permission.id'))
 
 
+
+
+
 class User(db.Model):
     '''
     用户表
     '''
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String(32), nullable=True, index=True)
-    pwd = Column(String(32), nullable=True)
+    username = Column(String(32),index=True)
+    pwd = Column(String(32))
 
     roles = relationship('Role',secondary='user2role',backref='users')
+
+
+
+    def __str__(self):
+        return self.username
 
 
 class User2Role(db.Model):
@@ -86,6 +111,22 @@ class User2Role(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id=Column(Integer,ForeignKey('user.id'))
     role_id=Column(Integer,ForeignKey('role.id'))
+
+
+
+class Order(db.Model):
+    '''
+    订单表
+    '''
+    id=Column(Integer,primary_key=True,autoincrement=True)
+    title=Column(String(64))
+
+    user_id=Column(Integer,ForeignKey('user.id'))
+
+    user=relationship('User',backref='orders')
+
+
+
 
 
 
